@@ -39,7 +39,6 @@ window.addEventListener("DOMContentLoaded", () => {
   const modalTrigger = document.querySelectorAll("[data-modal]"),
     modal = document.querySelector(".modal");
 
-
   function openModal() {
     modal.classList.add("show");
     modal.classList.remove("hide");
@@ -57,9 +56,8 @@ window.addEventListener("DOMContentLoaded", () => {
     document.body.style.overflow = "";
   }
 
-
   modal.addEventListener("click", (e) => {
-    if (e.target === modal || e.target.getAttribute('data-close') == '') {
+    if (e.target === modal || e.target.getAttribute("data-close") == "") {
       closeModal();
     }
   });
@@ -128,7 +126,6 @@ window.addEventListener("DOMContentLoaded", () => {
     'Меню "Фитнес" - это новый подход к приготовлению блюд: больше свежих овощей и фруктов. Продукт активных и здоровых людей. Это абсолютно новый продукт с оптимальной ценой и высоким качеством!',
     9,
     ".menu .container"
-
   ).render();
 
   new MenuCard(
@@ -151,68 +148,66 @@ window.addEventListener("DOMContentLoaded", () => {
     "menu__item"
   ).render();
 
-  const forms = document.querySelectorAll('form');
+  const forms = document.querySelectorAll("form");
   const message = {
-    loading: 'img/form/spinner.svg',
-    success: 'Thanks we connect with you',
-    failure: 'Error....'
-
+    loading: "img/form/spinner.svg",
+    success: "Thanks we connect with you",
+    failure: "Error....",
   };
 
-  forms.forEach(item => {
+  forms.forEach((item) => {
     postData(item);
-  })
-
-
+  });
 
   function postData(form) {
-    form.addEventListener('submit', (e) => {
+    form.addEventListener("submit", (e) => {
       e.preventDefault();
 
-      const statusMessage = document.createElement('img');
+      const statusMessage = document.createElement("img");
       statusMessage.src = message.loading;
       statusMessage.style.cssText = `
       display:block;
       margin: 0 auto;
       `;
-      
-      form.insertAdjacentElement('afterend', statusMessage);
 
+      form.insertAdjacentElement("afterend", statusMessage);
 
-      const request = new XMLHttpRequest();
-      request.open('POST', 'server.php');
-      request.setRequestHeader('Content-type', 'application/json');
       const formData = new FormData(form);
 
       const object = {};
       formData.forEach(function (value, key) {
         object[key] = value;
       });
-      const json = JSON.stringify(object);
+      
 
-      request.send(json);
-      request.addEventListener('load', () => {
-        if (request.status == 200) {
-          console.log(request.response);
-          showThanksModal(message.success);
-          form.reset();
-          statusMessage.remove();
+      fetch("server.php", {
+        method: "POST",
+        headers: {
+          "Content-type": "application/json",
+        },
+        body: JSON.stringify(object)
+      })
+      .then(data => data.text())
+      .then((data) => {
+        console.log(data);
+        showThanksModal(message.success);
+        statusMessage.remove();
+      }).catch(() => {
+                  showThanksModal(message.failure);
 
-        } else {
-          showThanksModal(message.failure);
-        }
-
-      });
+      }).finally(() => {
+        form.reset();
+      })
 
     });
   }
 
   function showThanksModal(message) {
-    const prevModalDialog = document.querySelector('.modal__dialog');
-    prevModalDialog.classList.add('hide');
+    const prevModalDialog = document.querySelector(".modal__dialog");
+    prevModalDialog.classList.add("hide");
     openModal();
-    const thanksModal = document.createElement('div');
-    thanksModal.classList.add('modal__dialog');
+    const thanksModal = document.createElement("div");
+    thanksModal.classList.add("modal__dialog");
     thanksModal.innerHTML = `
        <div class="modal__content">
          <div class="modal__close" data-close>×</div> 
@@ -220,22 +215,23 @@ window.addEventListener("DOMContentLoaded", () => {
        </div>
 
       `;
-    document.querySelector('.modal').append(thanksModal);
+    document.querySelector(".modal").append(thanksModal);
     setTimeout(() => {
       thanksModal.remove();
-      prevModalDialog.classList.add('show');
-      prevModalDialog.classList.remove('hide');
+      prevModalDialog.classList.add("show");
+      prevModalDialog.classList.remove("hide");
       closeModal();
-    }, 4000)
-
-
-
+    }, 4000);
   }
 
+  // fetch('https://jsonplaceholder.typicode.com/posts', {
+  //   method: "POST",
+  //   body: JSON.stringify({name: 'Alex'}),
+  //   headers: {
+  //     'Content-type': 'application/json'
+  //   }
 
-
-
-
-
-
+  // })
+  //     .then(response => response.json())
+  //     .then(json => console.log(json));
 });
